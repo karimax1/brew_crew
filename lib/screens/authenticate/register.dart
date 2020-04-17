@@ -1,4 +1,5 @@
 import 'package:brew_crew/shared/constant.dart';
+import 'package:brew_crew/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:brew_crew/services/auth.dart';
 
@@ -21,10 +22,11 @@ class _RegisterState extends State<Register> {
   String email = '';
   String password = '';
   String error = '';
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? Loading() :  Scaffold(
       backgroundColor: Colors.brown[100],
       appBar: AppBar(
         backgroundColor: Colors.brown[400],
@@ -41,7 +43,7 @@ class _RegisterState extends State<Register> {
         ],
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 40.00),
+        padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.00),
         child: Form(
           // to help track the form value
           key: _formKey,
@@ -49,14 +51,14 @@ class _RegisterState extends State<Register> {
             children: <Widget>[
               SizedBox(height: 20.0),
               TextFormField(
-                decoration: textInputDecoration,
+                decoration: textInputDecoration.copyWith(hintText: 'Email'),
                 validator: (val) => val.isEmpty ? 'Enter an email' : null,
                 onChanged: (val) {
                   setState(() => email = val);
                 }
               ),
               TextFormField(
-                decoration: textInputDecoration,
+                decoration: textInputDecoration.copyWith(hintText: 'Password'),
                 obscureText: true,
                 validator: (val) => val.length < 6 ? 'Enter a password 6+ chars long' : null,
                 onChanged: (val) {
@@ -72,9 +74,11 @@ class _RegisterState extends State<Register> {
                 ),
                 onPressed: () async {
                   if (_formKey.currentState.validate()){
+                    setState(() => loading = true);
                     dynamic result = await _auth.registerWithEmailAndPaswword(email, password);
                     if(result == null) {
                       setState(() => error = 'please supply a valid email');
+                      loading = false;
                     }
                     print(email);
                     print(password);
